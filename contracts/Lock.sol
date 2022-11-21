@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
+pragma experimental ABIEncoderV2;
 
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
@@ -40,9 +41,19 @@ contract Lock {
         
      }
 
- 
-           
-           
+ function getResult()  external view  returns(Twitter[] memory)  {
+  return tweet;
+ }
+
+
+
+
+function remove(uint index) public{
+    for(uint i = index; i < tweet.length-1; i++){
+      tweet[i] = tweet[i+1];      
+    }
+    tweet.pop();
+  }
            
           
             

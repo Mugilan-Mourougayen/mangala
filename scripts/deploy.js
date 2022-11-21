@@ -15,7 +15,7 @@ async function main() {
   await lock.deployed();
 
   console.log(
-    `compiled`
+    `Deployed at ${lock.address}`
   );
 }
 
