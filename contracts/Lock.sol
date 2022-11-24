@@ -17,21 +17,20 @@ contract Lock {
          string _tweetmsg;
          string _nickName;
          address _address;
+         uint _uniqid;
      }
      
      function addTwitter(string memory _tweetmsg,string memory _nickName) public {
-        tweet.push(Twitter(_tweetmsg,_nickName, msg.sender));
+        tweet.push(Twitter(_tweetmsg,_nickName, msg.sender,block.timestamp));
         counter +=1;
         
      }
-    //  function tweetcontent() public view returns(string memory){
-    //     return tweet;
-    //  }
 
-       function replace(string memory _msg,string memory _newmesg) public {
+
+       function replace(string memory _msg,string memory _newmesg, uint _unicid) public {
       
         for(uint i=0; i<counter;i++){
-          if(keccak256(bytes(tweet[i]._tweetmsg)) == keccak256(bytes(_msg))  && tweet[i]._address == msg.sender ){
+          if(keccak256(bytes(tweet[i]._tweetmsg)) == keccak256(bytes(_msg))  && tweet[i]._address == msg.sender && tweet[i]._uniqid == _unicid ){
             tweet[i]._tweetmsg = _newmesg;
           }
           else{
@@ -54,8 +53,6 @@ function remove(uint index) public{
     }
     tweet.pop();
   }
-           
-          
             
 
 }

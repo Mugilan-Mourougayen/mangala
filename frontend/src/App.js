@@ -1,15 +1,20 @@
 
 import lockabi from "./artifacts/contracts/Lock.sol/Lock.json"
-import { ethers,BigNumber } from "ethers";
+import { ethers } from "ethers";
 import {useEffect,useState} from "react";
-
-import MaterialTable from 'material-table'
-import { Button, Input, TextField } from "@mui/material";
+import "./App.css"
+import { Button,  TextField } from "@mui/material";
 import Swal from "sweetalert2";
+
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+
+import Typography from '@mui/material/Typography';
 
 function App() {
  
-  const [accounts, setAccounts] = useState([]);
+  const [accounts, setAccounts] = useState();
   const [msg, setMsg] = useState();
   const [name, setName] = useState();
   const [data,setData]=useState()
@@ -24,11 +29,21 @@ function App() {
   const mainaddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
   async function connectAccount(){
     if(window.ethereum){
-      const accounts = await window.ethereum.request({
+      const account = await window.ethereum.request({
         method: 'eth_requestAccounts'}
       );
-      setAccounts(accounts)
+      localStorage.setItem("acc", account[0]);
+     
+      
 
+    }
+    else{
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please install the metamask and connect with account!',
+        footer: '<a href="https://metamask.io/download/">click the link below to install</a>'
+      })
     }
   } 
   
@@ -36,7 +51,7 @@ function App() {
   
 useEffect(() => {
  connectAccount()
-}, [])
+},[])
 
 
 
@@ -65,7 +80,7 @@ catch(err){
 
 
 
-async function edittweet(oldmsg,newmsg) {
+async function edittweet(oldmsg,newmsg,id) {
   if(window.ethereum){
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
@@ -75,7 +90,7 @@ async function edittweet(oldmsg,newmsg) {
       signer
     );
     try{
-      const responce = await contract.replace(oldmsg,newmsg)
+      const responce = await contract.replace(oldmsg,newmsg,id)
       console.log("response",responce)
       Swal.fire('Tweet has been updated plz update the chat')
   
@@ -95,6 +110,8 @@ catch(err){
 
 
 async function readtweet() {
+  setAccounts(localStorage.getItem("acc"))
+  console.log(accounts)
   if(window.ethereum){
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
@@ -110,7 +127,8 @@ async function readtweet() {
       var objs = responce.map(x => ({ 
         msg: x[0], 
         name: x[1],
-        address:x[2]
+        address:x[2],
+        uniqueid:x[3]
 
       }));
       setData(objs)
@@ -126,7 +144,9 @@ catch(err){
   
 }
 
-const editfunction=async(msg)=>{
+const editfunction=async(msg,id)=>{
+
+
   const { value: text } = await Swal.fire({
     input: 'textarea',
     inputLabel: 'Message',
@@ -141,48 +161,56 @@ const editfunction=async(msg)=>{
   if (text) {
     if(text === msg){
       Swal.fire('No update has done')
-    }
-    else{
-      edittweet(msg,text)
-
-    }
   }
+
+else{
+  edittweet(msg,text,id)
+
+}
+  }
+
+
+
 }
 
 
 
-async function deletefunction(id) {
-  if(window.ethereum){
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(
-      mainaddress,
-      lockabi.abi,
-      signer
-    );
-    try{
-      const responce = await contract.remove(id)
-      console.log("response",responce)
-      Swal.fire('Tweet has been deleted plz update the chat')
-    
+async function deletefunction(id,add) {
 
-   
+    if(window.ethereum){
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(
+        mainaddress,
+        lockabi.abi,
+        signer
+      );
+      try{
+        const responce = await contract.remove(id)
+        console.log("response",responce)
+        Swal.fire('Tweet has been deleted plz update the chat')
+      
+  
      
-    }
-catch(err){
-  console.log("err",err)
-
-}
-
+       
+      }
+  catch(err){
+    console.log("err",err)
+  
   }
+  
+    }
+
   
 }
 
 
 
 return (
-<div>
- <span style={{margin:"30px"}}>Message:</span> 
+<div className="app">
+  <div style={{margin:"20px",padding:"50px"}}>
+
+  <span style={{margin:"30px"}}>Message:</span> 
  <TextField  id="outlined-basic"  variant="outlined" size="small" onChange={(e)=>{setMsg(e.target.value)}} />
 
 
@@ -191,71 +219,75 @@ return (
 
 
 
-  <Button style={{marginLeft:"100px"}} variant="contained" onClick={addtweet} size="small">add</Button>
+  <Button style={{marginLeft:"100px", backgroundColor: "#00974e"}} variant="contained" onClick={addtweet} size="small">add</Button>
 
 
 
 
-  <Button onClick={readtweet} variant="contained" color="warning" size="small" style={{ float: "right"}}>Update</Button>
+  <Button onClick={readtweet} variant="contained"  size="small" style={{ float: "right",backgroundColor:"#00974e"}}>Update</Button>
+  </div>
+
 {data&&
 
 
-  <table >
-      <thead>
-  <tr>
-    <th>Message</th>
-    <th>Name</th>
-    <th>address</th>
-  
-  </tr>
 
-  </thead>
-  <tbody>
+  <div>
         { data.map((dat,id) => (
          
-         <tr key={dat.id}>
-            {/*  <tr > */}
-              <td>
-            <input
-              name="x1"
-              style={{width:"100px"}}
-              value={dat.msg}
-            />
-            </td>
-            <td>
+       
               
-            <input
-              name="y1"
-              style={{width:"100px"}}
-              value={dat.name}
-            />
-            </td>
-            
-            <td>
-              
-              <input
-                name="y1"
-                style={{width:"100px"}}
-                value={dat.address}
-              />
-              </td>
-           <td>              
-            <button  onClick={() => editfunction(dat.msg)}>
+         
+       
+        
+<>
+
+<Card key={dat.id} sx={{ maxWidth: "100%" }}  style={{background:'#dad9d9'}}>
+    
+      <CardContent className={accounts.toLowerCase()===dat.address.toLowerCase()?"self":"others"} style={{padding:"10px 0px 0px 30px"}}>
+        <Typography  variant="h5" style={{margin:0}}>
+          {dat.name.toUpperCase()}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+         {dat.msg}
+        </Typography>
+      </CardContent>
+      <CardActions style={{background:"#b1afaf"}}>
+              <Button size="small" variant="contained" disabled={accounts.toLowerCase()===dat.address.toLowerCase()?false:true}  onClick={() => editfunction(dat.msg,dat.uniqueid)}>
               edit
-            </button>
-            </td> 
-            <td>
-              <button  onClick={() => deletefunction(id)}>
+            </Button>
+      <Button size="small" color="error" variant="contained" disabled={accounts.toLowerCase()===dat.address.toLowerCase()?false:true}  onClick={() => deletefunction(id)}>
                 delete
-              </button>
-              </td> 
-           
-            </tr>
+              </Button>
+      </CardActions>
+    </Card>
+    <br/>
+
+
+
+
+
+
+
+
+
+    </>
+
+
+
+
+
+
+
+
+
+
+
+
         
         )) }
-  </tbody>
+  </div>
 
-</table>
+
 }
 
 </div>
