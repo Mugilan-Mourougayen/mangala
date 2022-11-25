@@ -67,6 +67,8 @@ async function addtweet() {
     try{
       const responce = await contract.addTwitter(msg,name)
       console.log("response",responce)
+      setMsg("")
+      setName("")
       Swal.fire('Tweet has been added plz update the chat')
   
     }
@@ -131,7 +133,8 @@ async function readtweet() {
         uniqueid:x[3]
 
       }));
-      setData(objs)
+
+      setData(objs.reverse())
       
      
     }
@@ -176,7 +179,7 @@ else{
 
 
 async function deletefunction(id,add) {
-
+    let deleteid = (data.length-1) - id 
     if(window.ethereum){
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
@@ -186,7 +189,7 @@ async function deletefunction(id,add) {
         signer
       );
       try{
-        const responce = await contract.remove(id)
+        const responce = await contract.remove(deleteid)
         console.log("response",responce)
         Swal.fire('Tweet has been deleted plz update the chat')
       
@@ -239,10 +242,8 @@ return (
          
        
         
-<>
-
-<Card key={dat.id} sx={{ maxWidth: "100%" }}  style={{background:'#dad9d9'}}>
-    
+<Card key={id} sx={{ maxWidth: "100%" }}  className={id===0?"first":"last"} style={{background:'#dad9d9',marginBottom:"10px"}}>
+    {console.log(id)}
       <CardContent className={accounts.toLowerCase()===dat.address.toLowerCase()?"self":"others"} style={{padding:"10px 0px 0px 30px"}}>
         <Typography  variant="h5" style={{margin:0}}>
           {dat.name.toUpperCase()}
@@ -260,17 +261,7 @@ return (
               </Button>
       </CardActions>
     </Card>
-    <br/>
-
-
-
-
-
-
-
-
-
-    </>
+  
 
 
 
