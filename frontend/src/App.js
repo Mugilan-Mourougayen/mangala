@@ -26,7 +26,9 @@ function App() {
 
 
 
-  const mainaddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  // const mainaddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  const mainaddress = "0x1a65429A8824055A255fFdF440a5Cfc6347dB1cf"
+  
   async function connectAccount(){
     if(window.ethereum){
       const account = await window.ethereum.request({
